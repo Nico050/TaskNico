@@ -13,13 +13,13 @@ def login_register_screen():
         choice = str(input("Type your choice: ")).lower()
 
         if choice == "login":
-            db = account_ini.find_DB_user()
+            db = find_DB_user()
             cuser = account_ini.login(db)
             if cuser != None:
                 return db, cuser
         
         elif choice == "register":
-            db = account_ini.find_DB_user()
+            db = find_DB_user()
             db, cuser = account_ini.register(db)
             if cuser != None:
                 return db, cuser
