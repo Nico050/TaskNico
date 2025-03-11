@@ -9,16 +9,33 @@ def protocol(smtp_server, port, sender_email, sender_password, email, msg):
         server.starttls()  # Habilita a criptografia TLS
         server.login(sender_email, sender_password)  # Faz login no servidor
         server.sendmail(sender_email, email, msg.as_string())  # Envia o email
-        #print("Email sent successfully!")
     except Exception as e:
         print(f"Error sending email: {e}")
     finally:
         server.quit()
 
-def registration_email(email, Name, Surname):
-    
-    subject = "TaskNico Registration"
+def send_email(email, subject, message):
+    smtp_server = "smtp.gmail.com"
+    port = 587
+    sender_email = "tasknicomanager@gmail.com"
+    sender_password = "mqiw kvae qief oyex"
 
+    msg = MIMEMultipart()
+    msg["From"] = sender_email
+    msg["To"] = email
+    msg["Subject"] = subject
+
+    msg.attach(MIMEText(message, "html"))
+
+    with open("logo1.png", "rb") as img_file:
+        img = MIMEImage(img_file.read())
+        img.add_header("Content-ID", "<logo>")
+        msg.attach(img)
+
+    protocol(smtp_server, port, sender_email, sender_password, email, msg)
+
+def registration_email(email, Name, Surname):
+    subject = "TaskNico Registration"
     message = f"""
     <html>
         <body>
@@ -29,31 +46,12 @@ def registration_email(email, Name, Surname):
             <p>Enjoy!</p>
             <img src="cid:logo" alt="TaskNico Logo" style="width: 200px; height: auto;">
         </body>
+    </html>
     """
-
-    smtp_server = "smtp.gmail.com"
-    port = 587
-    sender_email = "tasknicomanager@gmail.com"
-    sender_password = "mqiw kvae qief oyex"
-
-    msg = MIMEMultipart()
-    msg["From"] = sender_email
-    msg["To"] = email
-    msg["Subject"] = subject
-    
-    msg.attach(MIMEText(message, "html"))
-
-    with open("logo1.png", "rb") as img_file:
-        img = MIMEImage(img_file.read())
-        img.add_header("Content-ID", "<logo>")
-        msg.attach(img)
-
-    protocol(smtp_server, port, sender_email, sender_password, email, msg)
+    send_email(email, subject, message)
 
 def login_email(email, Name, Surname):
-
     subject = "Your account was accessed"
-
     message = f"""
     <html>
         <body>
@@ -64,25 +62,103 @@ def login_email(email, Name, Surname):
             <p>Enjoy!</p>
             <img src="cid:logo" alt="TaskNico Logo" style="width: 200px; height: auto;">
         </body>
+    </html>
     """
+    send_email(email, subject, message)
 
-    smtp_server = "smtp.gmail.com"
-    port = 587
-    sender_email = "tasknicomanager@gmail.com"
-    sender_password = "mqiw kvae qief oyex"
+def logout_email(email, Name, Surname):
+    subject = "Your account was logged out"
+    message = f"""
+    <html>
+        <body>
+            <h1>TaskNico</h1>
+            <p>Goodbye {Name} {Surname}! :( </p>
+            <p>Your account has just been logged out!</p>
+            <p>Now you can't manage your tasks and projects until you log in again.</p>
+            <p>We hope to see you soon!</p>
+            <img src="cid:logo" alt="TaskNico Logo" style="width: 200px; height: auto;">
+        </body>
+    </html>
+    """
+    send_email(email, subject, message)
 
-    msg = MIMEMultipart()
-    msg["From"] = sender_email
-    msg["To"] = email
-    msg["Subject"] = subject
+def delete_email(email, Name, Surname):
+    subject = "Your account was deleted"
+    message = f"""
+    <html>
+        <body>
+            <h1>TaskNico</h1>
+            <p>Goodbye {Name} {Surname}! :( </p>
+            <p>Your account has just been deleted...</p>
+            <p>We hope to see you soon!</p>
+            <img src="cid:logo" alt="TaskNico Logo" style="width: 200px; height: auto;">
+        </body>
+    </html>
+    """
+    send_email(email, subject, message)
 
-    msg.attach(MIMEText(message, "html"))
+def task_created_email(email, Name, Surname, task_name):
+    subject = "TaskNico - New Task Created"
+    message = f"""
+    <html>
+        <body>
+            <h1>TaskNico</h1>
+            <p>Hello {Name} {Surname}!</p>
+            <p>A new task has been created: <strong>{task_name}</strong>.</p>
+            <p>You are assigned to this task.</p>
+            <p>Thank you for using TaskNico!</p>
+            <img src="cid:logo" alt="TaskNico Logo" style="width: 200px; height: auto;">
+        </body>
+    </html>
+    """
+    send_email(email, subject, message)
 
-    with open("logo1.png", "rb") as img_file:
-        img = MIMEImage(img_file.read())
-        img.add_header("Content-ID", "<logo>")
-        msg.attach(img)
+def task_deleted_email(email, Name, Surname, task_name):
+    subject = "TaskNico - Task Deleted"
+    message = f"""
+    <html>
+        <body>
+            <h1>TaskNico</h1>
+            <p>Hello {Name} {Surname}!</p>
+            <p>The task <strong>{task_name}</strong> has been deleted.</p>
+            <p>You are no longer assigned to this task.</p>
+            <p>Thank you for using TaskNico!</p>
+            <img src="cid:logo" alt="TaskNico Logo" style="width: 200px; height: auto;">
+        </body>
+    </html>
+    """
+    send_email(email, subject, message)
 
-    protocol(smtp_server, port, sender_email, sender_password, email, msg)
+def project_created_email(email, Name, Surname, project_name):
+    subject = "TaskNico - New Project Created"
+    message = f"""
+    <html>
+        <body>
+            <h1>TaskNico</h1>
+            <p>Hello {Name} {Surname}!</p>
+            <p>A new project has been created: <strong>{project_name}</strong>.</p>
+            <p>You are part of this project.</p>
+            <p>Thank you for using TaskNico!</p>
+            <img src="cid:logo" alt="TaskNico Logo" style="width: 200px; height: auto;">
+        </body>
+    </html>
+    """
+    send_email(email, subject, message)
+
+def project_deleted_email(email, Name, Surname, project_name):
+    subject = "TaskNico - Project Deleted"
+    message = f"""
+    <html>
+        <body>
+            <h1>TaskNico</h1>
+            <p>Hello {Name} {Surname}!</p>
+            <p>The project <strong>{project_name}</strong> has been deleted.</p>
+            <p>You are no longer part of this project.</p>
+            <p>Thank you for using TaskNico!</p>
+            <img src="cid:logo" alt="TaskNico Logo" style="width: 200px; height: auto;">
+        </body>
+    </html>
+    """
+    send_email(email, subject, message)
 
     

@@ -1,8 +1,14 @@
 import os
 from account import *
 from first_screen import *
+from tasks import *
+from projects import *
 
 def menu(db, cuser):
+    db_tasks_cuser = find_DB_tasks(cuser)
+    db_projects_cuser = finder_DB_projects(cuser)
+    call_task = Task()
+    call_project = Project()
     call_account = Conta()
     while True:
         print(f"Hello {cuser["Name"]}! Lets get started! what do you want to do?")
@@ -20,22 +26,28 @@ def menu(db, cuser):
         choice = str(input().lower())
 
         if choice == "add_task":
-            print("in working...")
+            db_tasks_cuser = choice_task(db_tasks_cuser, db, cuser)
+            input("Press Enter to continue...")
+            os.system('cls' if os.name == 'nt' else 'clear')
 
         elif choice == "see_tasks":
-            print("in working...")
+            print(db_tasks_cuser)
+            input("Press Enter to continue...")
+            os.system('cls' if os.name == 'nt' else 'clear')
 
         elif choice == "delete_task":
-            print("in working...")
+            db_tasks_cuser = call_task.delete_task(db_tasks_cuser, cuser, db)
 
         elif choice == "add_project":
-            print("in working...")
+            db_projects_cuser = call_project.add_project(db, db_projects_cuser, db_tasks_cuser,cuser)
 
         elif choice == "see_projects":
-            print("in working...")
+            print(db_projects_cuser)
+            input("Press Enter to continue...")
+            os.system('cls' if os.name == 'nt' else 'clear')
 
         elif choice == "delete_project":
-            print("in working...")
+            db_projects_cuser = call_project.delete_project(db_projects_cuser, cuser, db)
 
         elif choice == "see_account":
             print(cuser)
@@ -52,7 +64,7 @@ def menu(db, cuser):
                 menu(db, cuser)
 
         elif choice == "logout":
-            logout_choice = call_account.logout()
+            logout_choice = call_account.logout(cuser)
             if logout_choice == True:
                 db, cuser = login_register_screen()
                 menu(db, cuser)

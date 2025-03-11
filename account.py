@@ -23,70 +23,60 @@ class Conta:
         self.surname = ""
         self.username = ""
         self.email = ""
-        self.password = ""
-        
+        self.__password = ""  # Agora a senha é privada
+
+    def set_password(self, password):
+        """Define a senha aplicando hash para segurança."""
+        self.__password = hash_password(password)
+
+    def get_password(self):
+        """Retorna a senha de forma segura (ou um hash para verificação)."""
+        return self.__password  # Retorna apenas o hash para segurança
+
     def register(self, db):
         print("Register your account now!")
         self.name = str(input("Type your Name: "))
         self.surname = str(input("Type your Surname: "))
         self.username = str(input("Type your Username (without spaces): ")).lower()
         self.email = str(input("Type your Email: "))
-        self.password = hash_password(str(input("Type your Password: ")))
+        password = str(input("Type your Password: "))  # Captura senha do usuário
+        self.set_password(password)  # Aplica hash antes de armazenar
 
         if self.username in db["Username"].values or self.email in db["Email"].values:
             print("Username or Email already exists. Try another one.")
-            input("Press Enter to continue...")
-            clear_terminal()
             return db, None
 
-        if " " in self.username:
-            print("Username must not contain spaces. Try another one.")
-            input("Press Enter to continue...")
-            clear_terminal()
-            return db, None
-
-        if "@" not in self.email:
-            print("Invalid email. Try another one.")
-            input("Press Enter to continue...")
-            clear_terminal()
-            return db, None
-
-        cuser = {}
-        cuser["Name"] = self.name
-        cuser["Surname"] = self.surname
-        cuser["Username"] = self.username
-        cuser["Email"] = self.email
-
-        tempDB = pd.DataFrame({"Name": [self.name], "Surname": [self.surname], "Username": [self.username], "Email": [self.email], "Password": [self.password]})
-        db = pd.concat([db, tempDB], ignore_index = True)
-        db.to_csv("users.csv", index = False)
+        tempDB = pd.DataFrame({
+            "Name": [self.name],
+            "Surname": [self.surname],
+            "Username": [self.username],
+            "Email": [self.email],
+            "Password": [self.get_password()]  # Armazena o hash no banco
+        })
+        db = pd.concat([db, tempDB], ignore_index=True)
+        db.to_csv("users.csv", index=False)
 
         print("Account created successfully!")
-        registration_email(self.email, self.name, self.surname)
         input("Press Enter to continue...")
         clear_terminal()
+        return db, {"Name": self.name, "Surname": self.surname, "Username": self.username, "Email": self.email}
 
-        return db, cuser
-    
     def login(self, db):
         print("Login to your account now!")
         u = str(input("Type your Username: ")).lower()
         p = str(input("Type your Password: "))
 
-        pointeru = db[db["Username"]==u]
-
-        if not pointeru.empty and pointeru.iloc[0]["Password"] == hash_password(p):
+        user_row = db[db["Username"] == u]
+        if not user_row.empty and user_row.iloc[0]["Password"] == hash_password(p):
             print("Login successful!")
-            cuser = {}
-            cuser["Name"] = pointeru["Name"].values[0]
-            cuser["Surname"] = pointeru["Surname"].values[0]
-            cuser["Username"] = pointeru["Username"].values[0]
-            cuser["Email"] = pointeru["Email"].values[0]
-            login_email(cuser["Email"], cuser["Name"], cuser["Surname"])
             input("Press Enter to continue...")
             clear_terminal()
-            return cuser
-
+            return {
+                "Name": user_row["Name"].values[0],
+                "Surname": user_row["Surname"].values[0],
+                "Username": user_row["Username"].values[0],
+                "Email": user_row["Email"].values[0]
+            }
         else:
             print("Username or Password incorrect. Try again.")
             input("Press Enter to continue...")
@@ -147,11 +137,12 @@ class Conta:
                     break
         return db, cuser
 
-    def logout(self):
+    def logout(self, cuser):
         print("Do you want to logout? (yes/no)")
         choice = str(input().lower())
         if choice == "yes":
             print("Logging out...")
+            logout_email(cuser["Email"], cuser["Name"], cuser["Surname"])
             input("Press Enter to continue...")
             clear_terminal()
             return True
@@ -161,12 +152,25 @@ class Conta:
             return False
         
     def delete(self, db, cuser):
-        print("To delete your account type your password.")
+        print("To delete your account, type your password.")
         p = str(input("Type your Password: "))
-        pointeru = db[db["Username"]==cuser["Username"]]
-        if pointeru.iloc[0]["Password"] == hash_password(p):
-            db = db[db["Username"] != cuser["Username"]]
-            db.to_csv("users.csv", index = False)
+
+        user_row = db[db["Username"] == cuser["Username"]]
+
+        if not user_row.empty and user_row.iloc[0]["Password"] == hash_password(p):
+            delete_email(cuser["Email"], cuser["Name"], cuser["Surname"])
+            db = db[db["Username"] != cuser["Username"]]  # Remove o usuário do banco
+            db.to_csv("users.csv", index=False)
+
+            project_file = f"{cuser['Username']}P.csv"
+            task_file = f"{cuser['Username']}T.csv"
+
+            if os.path.exists(project_file):
+                os.remove(project_file)
+
+            if os.path.exists(task_file):
+                os.remove(task_file)
+
             print("Account deleted successfully!")
             input("Press Enter to continue...")
             clear_terminal()
@@ -175,3 +179,4 @@ class Conta:
             print("Password incorrect. Try again.")
             input("Press Enter to continue...")
             clear_terminal()
+            return False
