@@ -57,6 +57,7 @@ class Conta:
         db.to_csv("users.csv", index=False)
 
         print("Account created successfully!")
+        registration_email(self.email, self.name, self.surname)
         input("Press Enter to continue...")
         clear_terminal()
         return db, {"Name": self.name, "Surname": self.surname, "Username": self.username, "Email": self.email}
@@ -69,6 +70,7 @@ class Conta:
         user_row = db[db["Username"] == u]
         if not user_row.empty and user_row.iloc[0]["Password"] == hash_password(p):
             print("Login successful!")
+            login_email(user_row["Email"].values[0], user_row["Name"].values[0], user_row["Surname"].values[0])
             input("Press Enter to continue...")
             clear_terminal()
             return {
@@ -158,6 +160,7 @@ class Conta:
         user_row = db[db["Username"] == cuser["Username"]]
 
         if not user_row.empty and user_row.iloc[0]["Password"] == hash_password(p):
+            delete_email(cuser["Email"], cuser["Name"], cuser["Surname"])
             delete_email(cuser["Email"], cuser["Name"], cuser["Surname"])
             db = db[db["Username"] != cuser["Username"]]  # Remove o usuário do banco
             db.to_csv("users.csv", index=False)
