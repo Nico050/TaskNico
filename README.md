@@ -110,3 +110,16 @@ TaskNico uses **CSV files as a local database** to store system information. Eac
 
 TaskNico is a robust system for managing tasks and projects, ensuring organization and efficient communication among team members. With local CSV-based storage, the program provides a lightweight and practical solution for task tracking.
 
+## Funcionalyties
+
+Task Creation and Assignment: Implemented
+Deadline and Priority Setting: implemented
+Progress Tracking and Updates: Not implemented, 
+because I couldn't create a function that when the deadline arrives can tell if it was completed
+Collaboration and Communication Tools: Not implemented, becouse needs a cloud data bank, to remote acess
+File Sharing and Management: Not implemented, i don't know how to upload a file on code
+Calendar Integration: Not implemented, i don't have the knolege of a library that do that
+Customizable Workflow: implemented
+Notifications and Alerts: implemented
+Reporting and Analytics: Not implemented
+Access Control and Permissions: Not implemented
